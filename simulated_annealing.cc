@@ -29,7 +29,7 @@ protected:
     DistributionType distribution_;
 };
 
-bool simulated_annealing(Board &board, float decrease_factor, unsigned max_iterations=100000, unsigned stuck_max=100)
+bool simulated_annealing(Board &board, float decrease_factor, unsigned max_iterations=1000000, unsigned stuck_max=1000, float initial_temperature = 20.0)
 {
     auto gen = std::make_shared<std::mt19937>(std::random_device{}());
     auto uniform_index =
@@ -39,32 +39,43 @@ bool simulated_annealing(Board &board, float decrease_factor, unsigned max_itera
 
     board.random_initialize();
     unsigned stuck = 0;
-    float sigma = 10.0;
+    float sigma = initial_temperature;
+    unsigned unstuck_count = 0;
 
-    for (unsigned i = 0; i < max_iterations && board.score() != 0; i++)
+    unsigned i;
+    for (i = 0; i < max_iterations && board.score() != 0; i++)
     {
-        auto old_score = board.score();
+        long old_score = board.score();
         unsigned index1 = uniform_index();
         unsigned index2 = index1;
         while (index2 == index1)
             index2 = uniform_index();
         board.swap(index1, index2);
-        auto new_score = board.score();
-        if (uniform_distrib() < std::exp((new_score - old_score) / sigma))
+        long new_score = board.score();
+        auto tmp = std::exp((old_score - new_score) / (double)(sigma));
+        if (uniform_distrib() > tmp)
         {
-            if (new_score >= old_score)
+            stuck++;
+            if (stuck > stuck_max)
             {
-                stuck++;
-                if (stuck > stuck_max)
-                    sigma += 2.0;
+                if (unstuck_count == 50)
+                {
+                    sigma = initial_temperature;
+                    unstuck_count = 0;
+                }
+                else
+                {
+                    sigma += 1.0;
+                    unstuck_count++;
+                }
+                stuck = 0;
             }
-        }
-        else
             board.swap(index1, index2);
+        }
         sigma *= 1 - decrease_factor;
-
-        std::cout << board << std::endl;
+        std::cout << sigma << " old: " << old_score << " new: " << new_score << " " << tmp << std::endl;
     }
+    std::cout << i;
     return board.score() == 0;
 }
 
@@ -79,8 +90,9 @@ int main(int argc, char **argv)
     }
     else
     {
+        std::cout.precision(2);
         Board b(argv[1]);
-        bool win = simulated_annealing(b, 0.01);
+        bool win = simulated_annealing(b, 0.001);
         std::cout << "Game state: " << (win ? "Solved" : "Unsolved")
                   << std::endl
                   << b;
