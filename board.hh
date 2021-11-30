@@ -73,6 +73,17 @@ public:
         return res;
     }
 
+    void random_initialize()
+    {
+        auto gen = std::mt19937(std::random_device{}());
+        std::vector<unsigned> indices;
+        for (unsigned i = 0; i < this->count(); i++)
+            indices.push_back(i);
+        std::shuffle(indices.begin(), indices.end(), gen);
+        for (unsigned i = 0; i < this->count(); i++)
+            this->play(indices[i], i);
+    }
+
     void clear()
     {
         for (size_t i = 0; i < board_.size(); ++i)
