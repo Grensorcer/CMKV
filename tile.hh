@@ -14,14 +14,34 @@ public:
         , stuck_{ stuck }
     {}
 
-    size_t index()
+    size_t index() const
     {
         return idx_;
     }
 
-    bool is_stuck()
+    bool is_stuck() const
     {
         return stuck_;
+    }
+
+    short north() const
+    {
+        return north_;
+    }
+
+    short south() const
+    {
+        return south_;
+    }
+
+    short east() const
+    {
+        return east_;
+    }
+
+    short west() const
+    {
+        return west_;
     }
 
     friend std::ostream &operator<<(std::ostream &os, const Tile &tile);

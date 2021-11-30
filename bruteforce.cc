@@ -1,15 +1,22 @@
 #include <iostream>
 #include "board.hh"
 
-bool bruteforce(Board &board)
+bool bruteforce_(Board &board, size_t idx)
 {
-    for (size_t i = 0; i < board.count(); ++i)
+    if (idx == board.count())
+        return board.score() == 0;
+
+    bool win = false;
+    for (size_t j = 0; !win && j < board.count(); ++j)
     {
-        for (size_t j = 0; i < board.count(); ++j)
-        {
-            board.play(i, j);
-        }
+        board.remove(idx);
+        if (board.play(j, idx))
+            win = bruteforce_(board, idx + 1);
     }
+
+    if (!win)
+        board.remove(idx);
+    return win;
 }
 
 int main(int argc, char **argv)
@@ -24,22 +31,15 @@ int main(int argc, char **argv)
     else
     {
         Board b(argv[1]);
-        std::cout << b << std::endl;
-        b.play(0, 1);
-        b.play(1, 0);
-        std::cout << b << std::endl;
-        b.play(1, 1);
-        b.play(2, 2);
-        std::cout << b << std::endl;
-        b.swap(0, 1);
-        b.swap(1, 2);
-        std::cout << b << std::endl;
-        b.remove(0);
-        b.remove(1);
-        std::cout << b << std::endl;
-        b.play(2, 1);
-        b.play(3, 3);
-        std::cout << b << std::endl;
+        bool win = bruteforce_(b, 0);
+        b.play(0, 0);
+        b.play(3, 1);
+        b.play(1, 2);
+        b.play(2, 3);
+
+        std::cout << "Game state: " << (win ? "Solved" : "Unsolved")
+                  << std::endl
+                  << b;
     }
     return return_code;
 }
