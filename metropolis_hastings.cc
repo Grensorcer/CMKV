@@ -55,7 +55,7 @@ void print_estimation(const std::map<int, int> &estimation, size_t i)
 void metropolis_hastings(size_t n_iterations)
 {
     auto gen = std::make_shared<std::mt19937>(std::random_device{}());
-    auto target_distribution = target(-60, 3);
+    auto target_distribution = target(1, 3);
     auto uniform =
         Distribution<std::uniform_real_distribution<float>>(gen, 0, 1);
 
@@ -83,17 +83,6 @@ void metropolis_hastings(size_t n_iterations)
 
 int main(int argc, char **argv)
 {
-    int return_code = 0;
-    if (argc != 3)
-    {
-        std::cerr << "There should be 2 arguments: in.txt and out.txt."
-                  << std::endl;
-        return_code = 1;
-    }
-    else
-    {
-        std::cout << "in: " << argv[1] << " out: " << argv[2] << std::endl;
-        metropolis_hastings(10000000);
-    }
-    return return_code;
+    metropolis_hastings(10000000);
+    return 0;
 }

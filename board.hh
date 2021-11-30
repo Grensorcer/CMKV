@@ -60,7 +60,7 @@ public:
         if (res)
             p1.swap(p2);
 
-        return res;
+        return res || p2->is_stuck();
     }
 
     bool remove(size_t i)

@@ -9,6 +9,7 @@ bool bruteforce_(Board &board, size_t idx)
     bool win = false;
     for (size_t j = 0; !win && j < board.count(); ++j)
     {
+        std::cout << board << std::endl;
         board.remove(idx);
         if (board.play(j, idx))
             win = bruteforce_(board, idx + 1);
@@ -32,11 +33,6 @@ int main(int argc, char **argv)
     {
         Board b(argv[1]);
         bool win = bruteforce_(b, 0);
-        b.play(0, 0);
-        b.play(3, 1);
-        b.play(1, 2);
-        b.play(2, 3);
-
         std::cout << "Game state: " << (win ? "Solved" : "Unsolved")
                   << std::endl
                   << b;
