@@ -29,6 +29,8 @@ if __name__ == "__main__":
     parser.add_argument("outfile", type=str)
     args = parser.parse_args()
 
+    assert args.size >= 3 and args.size <= 6
+
     result = subprocess.run(
         ["gnome-tetravex-cli", "new", "--size", str(args.size)],
         capture_output=True,

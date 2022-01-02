@@ -54,8 +54,3 @@ protected:
     size_t idx_;
     bool stuck_;
 };
-
-std::ostream &operator<<(std::ostream &os, const Tile &tile)
-{
-    return os << tile.north_ << tile.west_ << tile.east_ << tile.south_;
-}
