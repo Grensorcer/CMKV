@@ -1,10 +1,5 @@
 #include "board.hh"
 
-std::ostream &operator<<(std::ostream &os, const Tile &tile)
-{
-    return os << tile.north_ << tile.west_ << tile.east_ << tile.south_;
-}
-
 Board::Board(const char *file)
 {
     std::ifstream board_stream(file);
@@ -119,6 +114,11 @@ size_t Board::score() const
     }
 
     return score;
+}
+
+std::ostream &operator<<(std::ostream &os, const Tile &tile)
+{
+    return os << tile.north_ << tile.west_ << tile.east_ << tile.south_;
 }
 
 std::ostream &operator<<(std::ostream &os, const Board &board)
