@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include "solvers.hh"
+#include "../solvers.hh"
 
 using namespace std::chrono;
 
