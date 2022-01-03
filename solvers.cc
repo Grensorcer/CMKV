@@ -15,6 +15,10 @@ bool bruteforce(Board &board, size_t idx)
     bool win = false;
     for (size_t j = 0; !win && j < board.count(); ++j)
     {
+#ifdef MYDEBUG
+        if (idx < 4)
+            std::cout << idx << ": " << j << '\n';
+#endif
         board.remove(idx);
         if (board.play(j, idx))
             win = bruteforce(board, idx + 1);
@@ -48,8 +52,8 @@ bool simulated_annealing(Board &board, float decrease_factor,
          && sigma >= min_temperature && board.score() != 0;
          ++j)
     {
-#ifndef NDEBUG
-        std::cout << " Tmp: " << sigma << " Min: " << min_temperature
+#ifdef MYDEBUG
+        std::cout << "Tmp: " << sigma << " Min: " << min_temperature
                   << " Max: " << max_temperature;
 #endif
 
@@ -70,7 +74,7 @@ bool simulated_annealing(Board &board, float decrease_factor,
             sigma *= 1 - decrease_factor;
             errors.emplace_back(tmp > 1 ? 1 : tmp);
         }
-#ifndef NDEBUG
+#ifdef MYDEBUG
         std::cout << " Score: " << board.score() << std::endl;
 #endif
 
@@ -107,7 +111,7 @@ bool simulated_annealing(Board &board, float decrease_factor,
         errors.clear();
     }
 
-#ifndef NDEBUG
+#ifdef MYDEBUG
     std::cout << "Iterations: " << j << " Temperature: " << sigma
               << " Deviation: " << (min_std + max_std) / 2. << std::endl;
 #endif

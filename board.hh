@@ -5,13 +5,14 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <string>
 #include <optional>
 #include "tile.hh"
 
 class Board
 {
 public:
-    Board(const char *file);
+    Board(const std::string &file);
 
     bool swap(size_t i, size_t j);
     bool play(size_t i, size_t j);

@@ -1,6 +1,6 @@
 #include "board.hh"
 
-Board::Board(const char *file)
+Board::Board(const std::string &file)
 {
     std::ifstream board_stream(file);
     std::string input;
