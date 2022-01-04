@@ -15,7 +15,11 @@ def parse_board(s, size):
 
         for j in range(size):
             tiles.append(
-                l1[2 + j * gap] + l2[j * gap] + l2[4 + j * gap] + l3[2 + j * gap] + "\n"
+                l1[2 + j * gap]
+                + l2[j * gap]
+                + l2[4 + j * gap]
+                + l3[2 + j * gap]
+                + "\n"
             )
 
     return tiles
@@ -25,16 +29,20 @@ if __name__ == "__main__":
     parser = ArgumentParser(
         description="Create a file for a tetravex board of a certain size"
     )
-    parser.add_argument("size", metavar="S", type=int, help="Size of the board")
-    parser.add_argument("number", metavar="N", type=int, help="Number of boards")
+    parser.add_argument(
+        "size", metavar="S", type=int, help="Size of the board"
+    )
+    parser.add_argument(
+        "number", metavar="N", type=int, help="Number of boards"
+    )
     parser.add_argument("outpath", type=str)
     args = parser.parse_args()
 
-    assert args.size >= 3 and args.size <= 6
+    assert args.size >= 2 and args.size <= 6
 
     for i in range(1, args.number + 1):
         result = subprocess.run(
-            ["gnome-tetravex-cli", "new", "--size", str(args.size)],
+            ["gnome-tetravex", "--cli=new", "--size", str(args.size)],
             capture_output=True,
             encoding="utf-8",
         )
