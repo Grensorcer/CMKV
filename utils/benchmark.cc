@@ -92,28 +92,7 @@ auto bench_hard = [](auto &&fn, const char *name, auto nb_iter,
     ((successes << "_" << std::forward<decltype(parameters)>(parameters)), ...);
     successes << " ; " << nb_iter << " ;";
 
-    for (short i = 2; i < 4; ++i)
-    {
-        double time_ms = 0.;
-        size_t victories = 0;
-        for (size_t j = 0; j < board_array[i - 2].size(); ++j)
-        {
-            const auto &b_path = board_array[i - 2][j];
-            std::pair<double, size_t> result =
-                measure(fn, b_path.string(), nb_iter, parameters...);
-
-            time_ms += result.first;
-            victories += result.second;
-            std::cout << name << ' ' << b_path.stem().string() << '\n';
-        }
-
-        times << time_ms / (double)board_array[i - 2].size() << " ;";
-        successes << (double)victories
-                / (double)(nb_iter * board_array[i - 2].size())
-                  << " ;";
-    }
-
-    for (short i = 4; i <= 6; ++i)
+    for (short i = 2; i <= 6; ++i)
     {
         double time_ms = 0.;
         size_t victories = 0;
