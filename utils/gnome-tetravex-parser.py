@@ -25,20 +25,22 @@ if __name__ == "__main__":
     parser = ArgumentParser(
         description="Create a file for a tetravex board of a certain size"
     )
-    parser.add_argument("size", metavar="N", type=int)
-    parser.add_argument("outfile", type=str)
+    parser.add_argument("size", metavar="S", type=int, help="Size of the board")
+    parser.add_argument("number", metavar="N", type=int, help="Number of boards")
+    parser.add_argument("outpath", type=str)
     args = parser.parse_args()
 
     assert args.size >= 3 and args.size <= 6
 
-    result = subprocess.run(
-        ["gnome-tetravex-cli", "new", "--size", str(args.size)],
-        capture_output=True,
-        encoding="utf-8",
-    )
+    for i in range(1, args.number + 1):
+        result = subprocess.run(
+            ["gnome-tetravex-cli", "new", "--size", str(args.size)],
+            capture_output=True,
+            encoding="utf-8",
+        )
 
-    tiles = parse_board(result.stdout, args.size)
+        tiles = parse_board(result.stdout, args.size)
 
-    outpath = Path(args.outfile)
-    with open(outpath, "w") as outfile:
-        outfile.writelines(tiles)
+        outpath = Path(args.outpath) / f"gen_{args.size}_{i}.in"
+        with open(outpath, "w") as outfile:
+            outfile.writelines(tiles)
