@@ -29,9 +29,10 @@ bool bruteforce(Board &board, size_t idx)
     return win;
 }
 
-bool simulated_annealing(Board &board, float decrease_factor,
-                         unsigned max_iterations, float max_temperature,
-                         float min_temperature)
+bool simulated_annealing_binarysearch(Board &board, float decrease_factor,
+                                      unsigned max_iterations,
+                                      float max_temperature,
+                                      float min_temperature)
 {
     double min_std = 0.1;
     double max_std = 100.;
@@ -115,5 +116,117 @@ bool simulated_annealing(Board &board, float decrease_factor,
     std::cout << "Iterations: " << j << " Temperature: " << sigma
               << " Deviation: " << (min_std + max_std) / 2. << std::endl;
 #endif
+    return board.score() == 0;
+}
+
+bool simulated_annealing_stuck(Board &board, float decrease_factor,
+                               unsigned max_iterations, unsigned stuck_max,
+                               float initial_temperature)
+{
+    auto gen = std::make_shared<std::mt19937>(std::random_device{}());
+    auto uniform_index = Distribution<std::uniform_int_distribution<>>(
+        gen, 0, board.count() - 1);
+    auto uniform_distrib =
+        Distribution<std::uniform_real_distribution<float>>(gen, 0, 1);
+
+    board.random_initialize();
+    unsigned stuck = 0;
+    float sigma = initial_temperature;
+    unsigned unstuck_count = 0;
+
+    unsigned i;
+    for (i = 0; i < max_iterations && board.score() != 0; i++)
+    {
+        long old_score = board.score();
+        unsigned index1 = uniform_index();
+        unsigned index2 = index1;
+        while (index2 == index1)
+            index2 = uniform_index();
+        board.swap(index1, index2);
+        long new_score = board.score();
+        auto tmp = std::exp((old_score - new_score) / (double)(sigma));
+        if (uniform_distrib() > tmp)
+        {
+            stuck++;
+            if (stuck > stuck_max)
+            {
+                if (unstuck_count == 50)
+                {
+                    sigma = initial_temperature;
+                    unstuck_count = 0;
+                }
+                else
+                {
+                    sigma += 1.0;
+                    unstuck_count++;
+                }
+                stuck = 0;
+            }
+            board.swap(index1, index2);
+        }
+        sigma *= 1 - decrease_factor;
+#ifdef MYDEBUG
+        std::cout << sigma << " old: " << old_score << " new: " << new_score
+                  << " " << tmp << std::endl;
+#endif
+    }
+    return board.score() == 0;
+}
+
+bool simulated_annealing_progressive(Board &board, float decrease_factor,
+                                     unsigned max_iterations,
+                                     unsigned stuck_max, unsigned step,
+                                     float initial_temperature)
+{
+    auto gen = std::make_shared<std::mt19937>(std::random_device{}());
+    auto uniform_index = Distribution<std::uniform_int_distribution<>>(
+        gen, 0, board.count() - 1);
+    auto uniform_distrib =
+        Distribution<std::uniform_real_distribution<float>>(gen, 0, 1);
+
+    board.random_initialize();
+    float sigma = initial_temperature;
+    unsigned stuck = 0;
+    unsigned count = 0;
+
+    unsigned i;
+    for (i = 0; i < max_iterations && board.score() != 0; i++)
+    {
+        long old_score = board.score();
+        unsigned index1 = uniform_index();
+        unsigned index2 = index1;
+        while (index2 == index1)
+            index2 = uniform_index();
+        board.swap(index1, index2);
+        long new_score = board.score();
+        auto tmp = std::exp((old_score - new_score) / (double)(sigma));
+        if (uniform_distrib() > tmp)
+        {
+            stuck++;
+            if (stuck > stuck_max)
+            {
+                count++;
+                stuck = 0;
+                /*
+                if (count % 40)
+                    sigma += 20.0;
+                else if (count % 20)
+                    sigma += 10.0;
+                else if (count % 10)
+                    sigma += 5.0;
+                else
+                    sigma += 1.0;
+                */
+                if (count % step == 0)
+                    sigma += count / step;
+            }
+            board.swap(index1, index2);
+        }
+        sigma *= 1 - decrease_factor;
+#ifdef MYDEBUG
+        std::cout << sigma << " old: " << old_score << " new: " << new_score
+                  << " " << tmp << std::endl;
+#endif
+    }
     return board.score() == 0;
 }

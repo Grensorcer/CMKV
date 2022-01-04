@@ -11,8 +11,12 @@
 
 using namespace std::chrono;
 
+#define MIN_SIZE 2
+#define MAX_SIZE 6
+
 const auto board_path = std::string("utils/ins/");
-auto board_array = std::array<std::vector<std::filesystem::path>, 5>{};
+auto board_array =
+    std::array<std::vector<std::filesystem::path>, MAX_SIZE - MIN_SIZE + 1>{};
 
 auto measure = [](auto &&fn, const std::string &path, auto nb_iter,
                   auto &&...parameters) {
@@ -42,19 +46,20 @@ auto bench_easy = [](auto &&fn, const char *name, auto nb_iter,
     std::ostringstream successes;
 
     times << name;
-    ((times << "_" << std::forward<decltype(parameters)>(parameters)), ...);
+    // ((times << "_" << std::forward<decltype(parameters)>(parameters)), ...);
     times << " ; " << nb_iter << " ;";
     successes << name;
-    ((successes << "_" << std::forward<decltype(parameters)>(parameters)), ...);
+    // ((successes << "_" << std::forward<decltype(parameters)>(parameters)),
+    // ...);
     successes << " ; " << nb_iter << " ;";
 
-    for (short i = 2; i < 4; ++i)
+    for (short i = MIN_SIZE; i < 4; ++i)
     {
         double time_ms = 0.;
         size_t victories = 0;
-        for (size_t j = 0; j < board_array[i - 2].size(); ++j)
+        for (size_t j = 0; j < board_array[i - MIN_SIZE].size(); ++j)
         {
-            const auto &b_path = board_array[i - 2][j];
+            const auto &b_path = board_array[i - MIN_SIZE][j];
             std::pair<double, size_t> result =
                 measure(fn, b_path.string(), nb_iter, parameters...);
 
@@ -63,13 +68,13 @@ auto bench_easy = [](auto &&fn, const char *name, auto nb_iter,
             std::cout << name << ' ' << b_path.stem().string() << '\n';
         }
 
-        times << time_ms / (double)board_array[i - 2].size() << " ;";
+        times << time_ms / (double)board_array[i - MIN_SIZE].size() << " ;";
         successes << (double)victories
-                / (double)(nb_iter * board_array[i - 2].size())
+                / (double)(nb_iter * board_array[i - MIN_SIZE].size())
                   << " ;";
     }
 
-    for (short i = 4; i <= 6; ++i)
+    for (short i = 4; i <= MAX_SIZE; ++i)
     {
         times << ";";
         successes << ";";
@@ -86,19 +91,20 @@ auto bench_hard = [](auto &&fn, const char *name, auto nb_iter,
     std::ostringstream successes;
 
     times << name;
-    ((times << "_" << std::forward<decltype(parameters)>(parameters)), ...);
+    // ((times << "_" << std::forward<decltype(parameters)>(parameters)), ...);
     times << " ; " << nb_iter << " ;";
     successes << name;
-    ((successes << "_" << std::forward<decltype(parameters)>(parameters)), ...);
+    // ((successes << "_" << std::forward<decltype(parameters)>(parameters)),
+    // ...);
     successes << " ; " << nb_iter << " ;";
 
-    for (short i = 2; i <= 6; ++i)
+    for (short i = MIN_SIZE; i <= MAX_SIZE; ++i)
     {
         double time_ms = 0.;
         size_t victories = 0;
-        for (size_t j = 0; j < board_array[i - 2].size(); ++j)
+        for (size_t j = 0; j < board_array[i - MIN_SIZE].size(); ++j)
         {
-            const auto &b_path = board_array[i - 2][j];
+            const auto &b_path = board_array[i - MIN_SIZE][j];
             std::pair<double, size_t> result =
                 measure(fn, b_path.string(), nb_iter, parameters...);
 
@@ -107,9 +113,9 @@ auto bench_hard = [](auto &&fn, const char *name, auto nb_iter,
             std::cout << name << ' ' << b_path.stem().string() << '\n';
         }
 
-        times << time_ms / (double)board_array[i - 2].size() << " ;";
+        times << time_ms / (double)board_array[i - MIN_SIZE].size() << " ;";
         successes << (double)victories
-                / (double)(nb_iter * board_array[i - 2].size())
+                / (double)(nb_iter * board_array[i - MIN_SIZE].size())
                   << " ;";
     }
 
@@ -141,11 +147,11 @@ int main(int argc, char **argv)
     times << "bench ; nb_iter ;";
     successes << "bench ; nb_iter ;";
 
-    for (short i = 2; i <= 6; ++i)
+    for (short i = MIN_SIZE; i <= MAX_SIZE; ++i)
     {
         for (const auto &board_entry : std::filesystem::directory_iterator(
                  board_path + std::to_string(i)))
-            board_array[i - 2].push_back(board_entry.path());
+            board_array[i - MIN_SIZE].push_back(board_entry.path());
         times << ' ' << i << ';';
         successes << ' ' << i << ';';
     }
@@ -153,10 +159,18 @@ int main(int argc, char **argv)
     times << '\n';
     successes << '\n';
 
-    add_entry(times, successes, bench_easy(bruteforce, "bruteforce", 100, 0));
+    // add_entry(times, successes, bench_easy(bruteforce, "bruteforce", 1, 0));
     add_entry(times, successes,
-              bench_hard(simulated_annealing, "simulated_annealing", 10, 0.001,
-                         10000, 100, 1));
+              bench_hard(simulated_annealing_binarysearch, "a", 1, 0.001, 10000,
+                         100, 1));
+
+    add_entry(times, successes,
+              bench_hard(simulated_annealing_stuck, "b", 1, 0.001, 10000000,
+                         1000, 20.0));
+
+    add_entry(times, successes,
+              bench_hard(simulated_annealing_progressive, "d", 10, 0.001,
+                         100000000, 1000, 30, 20.0));
 
     return 0;
 }

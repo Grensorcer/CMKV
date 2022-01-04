@@ -14,8 +14,8 @@ int main(int argc, char **argv)
     {
         std::cout.precision(2);
         Board b(argv[1]);
-        // bool win = simulated_annealing(b, 0.001);
-        bool win = bruteforce(b, 0);
+        bool win = simulated_annealing_progressive(b, 0.0001);
+        // bool win = bruteforce(b, 0);
         std::cout << "Game state: " << (win ? "Solved" : "Unsolved")
                   << std::endl
 #ifdef MYDEBUG
