@@ -67,11 +67,18 @@ void Board::random_initialize()
 {
     auto gen = std::mt19937(std::random_device{}());
     std::vector<unsigned> indices;
+    std::vector<unsigned> places;
+
     for (unsigned i = 0; i < this->count(); i++)
-        indices.push_back(i);
+    {
+        if (tiles_[i].has_value())
+            indices.push_back(i);
+        if (!board_[i].has_value())
+            places.push_back(i);
+    }
     std::shuffle(indices.begin(), indices.end(), gen);
     for (unsigned i = 0; i < this->count(); i++)
-        this->play(indices[i], i);
+        this->play(indices[i], places[i]);
 }
 
 void Board::clear()

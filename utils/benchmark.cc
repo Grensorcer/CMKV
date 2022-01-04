@@ -20,16 +20,18 @@ auto board_array =
 
 auto measure = [](auto &&fn, const std::string &path, auto nb_iter,
                   auto &&...parameters) {
-    auto board = Board(path);
     const auto &start = high_resolution_clock::now();
     auto fwd_fn = std::forward<decltype(fn)>(fn);
 
     size_t victories = 0;
     for (auto i = 0; i < nb_iter; ++i)
+    {
+        auto board = Board(path);
         victories +=
             fwd_fn(board, std::forward<decltype(parameters)>(parameters)...)
             ? 1
             : 0;
+    }
 
     const auto &stop = high_resolution_clock::now();
 
@@ -169,7 +171,7 @@ int main(int argc, char **argv)
                          1000, 20.0));
 
     add_entry(times, successes,
-              bench_hard(simulated_annealing_progressive, "d", 10, 0.001,
+              bench_hard(simulated_annealing_progressive, "d", 1, 0.001,
                          100000000, 1000, 30, 20.0));
 
     return 0;
